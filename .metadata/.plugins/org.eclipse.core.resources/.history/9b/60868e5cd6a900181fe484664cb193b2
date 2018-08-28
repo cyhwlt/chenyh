@@ -1,5 +1,0 @@
-package com.springboot.bean;
-
-public class JsonResult {
-
-}

@@ -1,6 +1,0 @@
-package com.etc.mapper;
-
-public interface StudentMapper {
-	List<Student> findAll();
-	
-}

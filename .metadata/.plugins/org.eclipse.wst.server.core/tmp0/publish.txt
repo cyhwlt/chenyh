@@ -1,5 +1,0 @@
-#Tomcat publish data
-#Fri Aug 24 17:50:06 CST 2018
-org.eclipse.jst.j2ee.server\:/binary\:C\:\\Users\\96257\\.m2\\repository\\org\\springframework\\spring-web\\4.3.8.RELEASE\\spring-web-4.3.8.RELEASE.jar=D\:\\tomcat\\apache-tomcat-7.0.90\\webapps\\kettle\\WEB-INF\\lib\\spring-web-4.3.8.RELEASE.jar
-org.eclipse.jst.j2ee.server\:kettle=D\:\\tomcat\\apache-tomcat-7.0.90\\webapps\\kettle
-org.eclipse.jst.j2ee.server\:/binary\:C\:\\Users\\96257\\.m2\\repository\\org\\apache\\tomcat\\embed\\tomcat-embed-websocket\\8.5.14\\tomcat-embed-websocket-8.5.14.jar=D\:\\tomcat\\apache-tomcat-7.0.90\\webapps\\kettle\\WEB-INF\\lib\\tomcat-embed-websocket-8.5.14.jar
