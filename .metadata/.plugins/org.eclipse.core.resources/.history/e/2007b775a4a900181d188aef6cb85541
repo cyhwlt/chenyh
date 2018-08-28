@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.etc.mapper.StudentMapper">
+	<resultMap type="com.etc.po.Student" id="studentMap">
+		<id column="sno" property="sno"/>
+		<result column="sname" property="sname"/>
+		<result column="sage" property="sage"/>
+	</resultMap>
+</mapper>

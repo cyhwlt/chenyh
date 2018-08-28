@@ -1,0 +1,5 @@
+#MySql
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.url=jdbc:mysql://97.64.122.16:3306/cyh?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true
+spring.datasource.username=root
+spring.datasource.password=123456

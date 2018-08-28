@@ -1,0 +1,5 @@
+package com.etc.mapper;
+
+public class StudentMapper {
+
+}

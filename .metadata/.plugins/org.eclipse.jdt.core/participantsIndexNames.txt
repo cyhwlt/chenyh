@@ -1,0 +1,3 @@
+INDEX VERSION 1.130
+F:\kettle\kettle7104\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\798714016.index
+\kettle_web\src\main\java
