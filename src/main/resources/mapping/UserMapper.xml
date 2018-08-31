@@ -9,10 +9,10 @@
 		<result column="userage" property="userage" jdbcType="INTEGER"/>
 	</resultMap>
 	 <sql id="User_Column_List" >
-        id, username, userage
+        id, username, userage, password
     </sql>
 	<insert id="addUser" parameterType="com.springboot.bean.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user(username, userage) VALUES (#{username},#{userage})
+        INSERT INTO user(username, userage, password) VALUES (#{username},#{userage},#{password})
     </insert>
     
     <select id="findAll" resultMap="userMap">

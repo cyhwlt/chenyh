@@ -2,6 +2,8 @@ package com.springboot.resources;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,8 @@ import com.springboot.util.JsonUtil;
 @RequestMapping("/user")
 public class UserController {
 
+	private static Logger logger = LogManager.getLogger(UserController.class);
+	
 	@Autowired
 	private UserService userService;
 	
