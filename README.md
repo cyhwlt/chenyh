@@ -1,5 +1,4 @@
 # chenyh
-2018年8月28
 springboot+mybatis
 配置文件：application.properties——所需框架的配置
          UserMapper.xml——表与实体对应关系及对数据库操作的配置
