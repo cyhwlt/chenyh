@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.springboot.entity.RepositoryDto;
+import com.springboot.entity.KettleDatabaseRepositoryDto;
 import com.springboot.entity.RepositoryTreeDto;
 import com.springboot.util.Constant;
 import com.springboot.util.JsonUtil;
@@ -46,7 +46,7 @@ public class TransformController {
 	
 	@RequestMapping(path="/connectrepository", method=RequestMethod.POST, consumes="application/json", produces="application/json")
 	@ResponseBody
-	public void getAllDirectory(@RequestBody RepositoryDto dto) throws KettleException {
+	public void getAllDirectory(@RequestBody KettleDatabaseRepositoryDto dto) throws KettleException {
 		KettleDatabaseRepository databaseRepository = connectRepository(dto);
 		List<RepositoryTreeDto> allRepositoryTreeList = new ArrayList<RepositoryTreeDto>();
 		
@@ -59,7 +59,7 @@ public class TransformController {
 		}
 	}
 	
-	public KettleDatabaseRepository connectRepository(RepositoryDto dto) throws KettleException {
+	public KettleDatabaseRepository connectRepository(KettleDatabaseRepositoryDto dto) throws KettleException {
 		//数据库连接元对象
     	//DatabaseMeta databaseMeta = new DatabaseMeta("repository", "MYSQL", 
 				//"Native", "localhost", "kettle-repository", "3306", "root", "1234"); 

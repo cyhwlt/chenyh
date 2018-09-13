@@ -119,6 +119,11 @@
 	    <artifactId>encoder</artifactId>
 	    <version>1.2.1</version>
 	</dependency>
+	<dependency>
+		<groupId>org.pentaho.xul</groupId>
+		<artifactId>pentaho-xul-core</artifactId>
+		<version>6.1.0.1-196</version>
+	</dependency>
   </dependencies>
   <build>
     <finalName>Chenyh</finalName>
