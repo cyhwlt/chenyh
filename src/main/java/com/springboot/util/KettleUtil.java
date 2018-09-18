@@ -27,7 +27,8 @@ public class KettleUtil {
 			for(Map.Entry<String, String> entry: paras.entrySet()){
 				trans.setVariable(entry.getKey(), entry.getValue());
 			}
-			trans.execute(null);
+//			trans.execute(null);
+			trans.startThreads();
 			trans.waitUntilFinished();
 			if(trans.getErrors() > 0) {
 				throw new RuntimeException("There wereerrors during transformation execution.");

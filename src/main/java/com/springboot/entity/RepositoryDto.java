@@ -4,7 +4,7 @@ public class RepositoryDto {
 	private String name;
 	private String decrible;
 	private String repositoryType;
-	private KettleDatabaseRepositoryDto kdrDto;
+	private DatabaseDto dbDto;
 	
 	public String getName() {
 		return name;
@@ -24,10 +24,11 @@ public class RepositoryDto {
 	public void setRepositoryType(String repositoryType) {
 		this.repositoryType = repositoryType;
 	}
-	public KettleDatabaseRepositoryDto getKdrDto() {
-		return kdrDto;
+	public DatabaseDto getDbDto() {
+		return dbDto;
 	}
-	public void setKdrDto(KettleDatabaseRepositoryDto kdrDto) {
-		this.kdrDto = kdrDto;
+	public void setDbDto(DatabaseDto dbDto) {
+		this.dbDto = dbDto;
 	}
+	
 }
