@@ -1,12 +1,27 @@
 package com.springboot.service.dbrepository;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -19,9 +34,12 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.springboot.entity.DatabaseDto;
 import com.springboot.entity.KtrDto;
+
 
 @Service
 public class KettleDatabaseRepositoryService {
@@ -165,4 +183,37 @@ public class KettleDatabaseRepositoryService {
 		String[] array = field.toArray(new String[field.size()]);
 		return array;
 	}
+
+	public String upload(HttpServletRequest request, MultipartFile file, Model model) throws IOException {
+		String msg = "";
+	    int count = 1;
+	    byte[] bytes = file.getBytes();
+	    Long currentTimeMillis = System.currentTimeMillis();
+	    Path path = Paths.get("E:\\" + currentTimeMillis + "_" + file.getOriginalFilename());
+	    Files.write(path,bytes);
+	    File f = new File(path.toString());
+	    FileInputStream fileInputStream = new FileInputStream(f);
+	    Workbook workbook = new HSSFWorkbook(fileInputStream);
+	    fileInputStream.close();
+	    Sheet sheet = workbook.getSheetAt(0);
+	    byte[] b = new byte[1024];
+	    Iterator<Row> iterator = sheet.rowIterator();
+	    while (iterator.hasNext()){
+	        try {
+	            Row row = iterator.next();
+	            count ++;
+	        }catch (Exception e){
+	            e.printStackTrace();
+	            msg = "在导入第"+count+"行数据时报错;";
+	            break;
+	        }
+	    }
+	    if ("".equals(msg)){
+	        msg = "导入成功！共导入"+count+"条试题";
+	    }
+	    model.addAttribute("msg",msg);
+	    return "system/import_result";
+		
+	}
+	
 }

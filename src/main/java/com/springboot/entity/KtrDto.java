@@ -7,6 +7,7 @@ public class KtrDto {
 	private String fields; //表字段
 	private DatabaseDto inputDB; // 作为输入源的数据库
 	private DatabaseDto outputDB; // 作为输出源的数据库
+	private String filePath; // excel文件路径
 
 	public String getTransName() {
 		return transName;
@@ -56,5 +57,12 @@ public class KtrDto {
 		this.outputDB = outputDB;
 	}
 
-		
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
 }
