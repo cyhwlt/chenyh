@@ -25,14 +25,16 @@ import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.springframework.stereotype.Service;
 
 import com.springboot.entity.DatabaseDto;
-import com.springboot.entity.KtrDto;
+import com.springboot.entity.ExcelInputDto;
+import com.springboot.entity.ExcelToDBDto;
+import com.springboot.entity.SheetDto;
 
 @Service
 public class ExcelToDatabaseTransService {
 	
 	private static Logger logger = LogManager.getLogger(ExcelToDatabaseTransService.class); 
 
-	public void excelToDatabase(KtrDto dto){
+	public void excelToDatabase(ExcelToDBDto dto){
 		try {
 			TransMeta generateTrans = this.generateKtr(dto);
 			String xml = generateTrans.getXML();
@@ -50,7 +52,7 @@ public class ExcelToDatabaseTransService {
 	 * 注：二维excel使用数据字典设计
 	 * @throws Exception 
 	 */
-	public TransMeta generateKtr(KtrDto dto) throws Exception {
+	public TransMeta generateKtr(ExcelToDBDto dto) throws Exception {
 		TransMeta transMeta = new TransMeta();
 		//生成databaseXML——表输出信息
 		String[] dbXml = generateDBxml(dto.getOutputDB());
@@ -74,8 +76,8 @@ public class ExcelToDatabaseTransService {
 		insertMeta.setTableName(dto.getOutputTableName());
 		
 		//设置用来查询的关键字
-		insertMeta.setKeyLookup(new String[]{"ID"});
-		insertMeta.setKeyStream(new String[]{"ID"});
+		insertMeta.setKeyLookup(new String[]{dto.getSheets().getPrimaryKey()});
+		insertMeta.setKeyStream(new String[]{dto.getSheets().getPrimaryKey()});
 		insertMeta.setKeyStream2(new String[]{""});
 		insertMeta.setKeyCondition(new String[]{"="});
 		
@@ -96,9 +98,18 @@ public class ExcelToDatabaseTransService {
 		//2.设置excel输入参数
 		ExcelInputMeta eiMeta = new ExcelInputMeta();
 		// 读取excel文件，获取字段
-		ExcelInputField[] fields = anaylsisFile(dto.getFilePath());
+		List<ExcelInputDto> sheets = dto.getSheets().getDtos();
+		int size = sheets.size();
+//		ExcelInputField[] fields = analysisFile(dto.getFilePath(),2);
+		ExcelInputField[] fields = new ExcelInputField[size];
+		int i = 0;
+		for (ExcelInputDto sheet : sheets) {
+			fields[i] = new ExcelInputField();
+			fields[i].setName(sheet.getName());
+			i++;
+		}
 		eiMeta.setField(fields);
-		String[] fileName = new String[]{dto.getFilePath()};
+		String[] fileName  = new String[]{dto.getFilePath()};
 		String[] fileMask = {};
 		String[] fileRequired = {"N"};
 		eiMeta.setFileName(fileName);
@@ -118,7 +129,8 @@ public class ExcelToDatabaseTransService {
 //		eiMeta.setAcceptingField("");
 //		eiMeta.setAcceptingStepName("");
 //		eiMeta.allocate(1, 1, 1);
-		String[] sheetName = {"Sheet1"};
+		String name = dto.getSheets().getSheetName();
+		String[] sheetName = {name};
 		eiMeta.setSheetName(sheetName);
 		int[] row = {0};
 		int[] col = {0};
@@ -179,10 +191,11 @@ public class ExcelToDatabaseTransService {
 		return array;
 	}
 	
-	public ExcelInputField[] anaylsisFile(String path) throws Exception{
+	public ExcelInputField[] analysisFile(String path, int sheetNumber) throws Exception{
 		File excelFile = new File(path);
 		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(excelFile));
-		HSSFSheet sheet = wb.getSheetAt(0);
+		HSSFSheet sheet = wb.getSheetAt(sheetNumber);
+		sheet.getSheetName();
 		int length = sheet.getRow(0).getPhysicalNumberOfCells();
 		ExcelInputField[] array = new ExcelInputField[length]; //excel文件列数
 		int count = 0; //数组项

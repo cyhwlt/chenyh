@@ -1,3 +1,4 @@
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\ExcelInputDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\RepositoryDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\resources\zframeworktest\UserController.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\dbrepository\ExcelToDatabaseTransService.java
@@ -13,7 +14,10 @@ F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\bean\User.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\resources\trans\TransExectorController.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\bean\Database.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\SpringbootLaunch.java
-F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\KtrDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\ExcelAnalysisDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\SheetDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\DBToDBDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\ExcelToDBDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\zframeworktest\UserService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\repository\RepositoryService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\util\KettleUtil.java

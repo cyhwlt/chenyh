@@ -3,7 +3,6 @@ package com.springboot.service.dbrepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,11 +16,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -37,8 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.springboot.entity.DBToDBDto;
 import com.springboot.entity.DatabaseDto;
-import com.springboot.entity.KtrDto;
 
 
 @Service
@@ -62,7 +59,7 @@ public class KettleDatabaseRepositoryService {
 		}
 	}
 	
-	public void generateKtr(KtrDto dto) throws KettleException{
+	public void generateKtr(DBToDBDto dto) throws KettleException{
 		try {
 			TransMeta generateTrans = this.generateTrans(dto);
 			String xml = generateTrans.getXML();
@@ -76,7 +73,7 @@ public class KettleDatabaseRepositoryService {
 	}
 	
 	//数据库表数据之间的转换
-	public TransMeta generateTrans(KtrDto dto) throws KettleXMLException{
+	public TransMeta generateTrans(DBToDBDto dto) throws KettleXMLException{
 		TransMeta transMeta = new TransMeta();
 		// 生成databasesXML
 		String[] databasesXML = generateDBxml(dto.getInputDB(), dto.getOutputDB());
@@ -116,7 +113,7 @@ public class KettleDatabaseRepositoryService {
 //		insertMeta.setTableName("teachar1");
 		insertMeta.setTableName(dto.getOutputTableName());
 		
-		//设置用来查询的关键字
+		//设置用来查询的关键字(主键)
 		insertMeta.setKeyLookup(new String[]{"ID"});
 		insertMeta.setKeyStream(new String[]{"ID"});
 		insertMeta.setKeyStream2(new String[]{""});

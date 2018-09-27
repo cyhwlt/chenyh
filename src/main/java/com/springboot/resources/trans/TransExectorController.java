@@ -1,20 +1,15 @@
 package com.springboot.resources.trans;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pentaho.di.core.EngineMetaInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleSecurityException;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.springboot.entity.KtrDto;
+import com.springboot.entity.DBToDBDto;
+import com.springboot.entity.ExcelAnalysisDto;
+import com.springboot.entity.ExcelToDBDto;
 import com.springboot.service.dbrepository.ExcelToDatabaseTransService;
 import com.springboot.service.dbrepository.KettleDatabaseRepositoryService;
 import com.springboot.service.repository.RepositoryService;
+import com.springboot.util.JsonUtil;
 
 @Controller
 @RequestMapping("/trans")
@@ -59,7 +56,7 @@ public class TransExectorController {
 	}
 	
 	/**
-	 * 数据转换接口
+	 * 通用数据转换接口
 	 * @param repositoryName 资源库名称
 	 * @param fileName .krt文件名
 	 * @throws KettleSecurityException
@@ -90,7 +87,7 @@ public class TransExectorController {
 	 */
 	@RequestMapping(path="/generatektr", method=RequestMethod.POST, produces="application/json", consumes="application/json")
 	@ResponseBody
-	public void generateKtrfile(@RequestBody KtrDto dto) throws KettleException{
+	public void generateKtrfile(@RequestBody DBToDBDto dto) throws KettleException{
 		this.kdrService.generateKtr(dto);
 	}
 	
@@ -108,15 +105,27 @@ public class TransExectorController {
 		return kdrService.upload(request, file, model);
 	}
 	
+	/**
+	 * 生成excel文件到库的转换文件
+	 * @param dto
+	 * @throws Exception
+	 */
 	@RequestMapping(path="/exceltotable", method=RequestMethod.POST, produces="application/json", consumes="application/json")
 	@ResponseBody
-	public void excelToDatabase(@RequestBody KtrDto dto) throws Exception{
+	public void excelToDatabase(@RequestBody ExcelToDBDto dto) throws Exception{
 		this.etdtService.excelToDatabase(dto);
+	}
+	
+	@RequestMapping(path="/analysis", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	@ResponseBody
+	public String anaylsisExcel(@RequestBody ExcelAnalysisDto dto) throws Exception{
+		ExcelInputField[] results = this.etdtService.analysisFile(dto.getFilePath(), dto.getSheetNumber());
+		return JsonUtil.objectToJson(results);
 	}
 	
 	@RequestMapping(path="/test", method=RequestMethod.GET)
 	public void test() throws Exception{
-		this.etdtService.anaylsisFile("E:\\kettleTest\\file1.xls.xls");
+//		this.etdtService.analysisFile("E:\\kettleTest\\file1.xls.xls");
 	}
 	
 }
