@@ -1,5 +1,10 @@
 package com.springboot.entity;
 
+/**
+ * excel作为输入源时文件的字段参数实体类
+ * @author 96257
+ *
+ */
 public class ExcelInputDto {
 	private String name;
 	private int type;

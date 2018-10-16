@@ -1,5 +1,10 @@
 package com.springboot.entity;
 
+/**
+ * 解析excel文件的实体
+ * @author 96257
+ *
+ */
 public class ExcelAnalysisDto {
 	private String filePath; // excel文件路径
 	private int sheetNumber; // sheet下标

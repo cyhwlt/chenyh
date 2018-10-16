@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import com.springboot.entity.DatabaseDto;
 import com.springboot.entity.ExcelInputDto;
 import com.springboot.entity.ExcelToDBDto;
-import com.springboot.entity.SheetDto;
 
 @Service
 public class ExcelToDatabaseTransService {
@@ -165,18 +164,24 @@ public class ExcelToDatabaseTransService {
 	}
 	
 	public String[] generateDBxml(DatabaseDto outputDB){
+		String databaseXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<connection>" +
+			"<name>"+outputDB.getConnName()+"</name>" +
+			"<server>"+outputDB.getHostName()+"</server>" +
+			"<type>"+outputDB.getConnType()+"</type>" +
+			"<access>"+outputDB.getAccessType()+"</access>" + 
+			"<database>"+outputDB.getDbName()+"</database>" +
+			"<port>"+outputDB.getDbPort()+"</port>" +
+			"<username>"+outputDB.getUserName()+"</username>" +
+			"<password>"+outputDB.getPassword()+"</password>";
+		StringBuilder sb = new StringBuilder(databaseXML);
+		if(outputDB.getDbEncodingKey() != null && outputDB.getDbEncodingValue() != null){
+            sb.append("<attributes>" + "<attribute>" +
+            "<code>EXTRA_OPTION_"+outputDB.getDbEncodingKey()+".characterEncoding</code>" +
+            "<attribute>" + outputDB.getDbEncodingValue() + "</attribute>" +
+            "</attribute>" + "</attributes>" + "</connection>");
+		}
 		String[] databasesXML = {
-	            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-	            "<connection>" +
-	            "<name>"+outputDB.getConnName()+"</name>" +
-	            "<server>"+outputDB.getHostName()+"</server>" +
-	            "<type>"+outputDB.getConnType()+"</type>" +
-	            "<access>"+outputDB.getAccessType()+"</access>" + 
-	            "<database>"+outputDB.getDbName()+"</database>" +
-	            "<port>"+outputDB.getDbPort()+"</port>" +
-	            "<username>"+outputDB.getUserName()+"</username>" +
-	            "<password>"+outputDB.getPassword()+"</password>" +
-	            "</connection>"
+	            sb.toString()
 		};
 		return databasesXML;
 	}
@@ -227,6 +232,10 @@ public class ExcelToDatabaseTransService {
             break;
 		}
 		return array;
+	}
+
+	public void excelToHive(ExcelToDBDto dto) {
+		
 	}
 
 }

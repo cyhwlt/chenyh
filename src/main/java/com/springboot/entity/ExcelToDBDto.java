@@ -1,7 +1,10 @@
 package com.springboot.entity;
 
-import java.util.List;
-
+/**
+ * excel入库参数实体类
+ * @author 96257
+ *
+ */
 public class ExcelToDBDto {
 	private String transName; //转换名称
 	private String outputTableName; //输出源表名

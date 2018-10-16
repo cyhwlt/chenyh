@@ -1,5 +1,10 @@
 package com.springboot.entity;
 
+/**
+ * DB连接参数
+ * @author 96257
+ *
+ */
 public class DatabaseDto {
 	private String connName; //显示名
 	private String connType; //连接类型
@@ -9,6 +14,8 @@ public class DatabaseDto {
 	private String dbPort; //数据库端口
 	private String userName; //数据库登录名
 	private String password; //登陆密码
+	private String dbEncodingKey; //设置数据库编码命名参数
+	private String dbEncodingValue; //设置数据库编码值
 	public String getConnName() {
 		return connName;
 	}
@@ -56,6 +63,18 @@ public class DatabaseDto {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getDbEncodingKey() {
+		return dbEncodingKey;
+	}
+	public void setDbEncodingKey(String dbEncodingKey) {
+		this.dbEncodingKey = dbEncodingKey;
+	}
+	public String getDbEncodingValue() {
+		return dbEncodingValue;
+	}
+	public void setDbEncodingValue(String dbEncodingValue) {
+		this.dbEncodingValue = dbEncodingValue;
 	}
 	
 }

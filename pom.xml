@@ -21,7 +21,6 @@
     <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.39</version>
     </dependency>
     <!-- mybatis -->
     <dependency>
@@ -32,7 +31,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -43,7 +41,14 @@
     	<groupId>org.springframework.boot</groupId>
     	<artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <!-- kettle -->
+
+	<dependency>
+		<groupId>org.apache.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>
+		<version>3.1.0</version>
+	</dependency>
+
+     <!-- kettle -->
      <dependency>
          <groupId>pentaho-kettle</groupId>
          <artifactId>kettle-core</artifactId>
@@ -164,6 +169,67 @@
 	    <artifactId>jface</artifactId>
 	    <version>3.3.0-I20070606-0010</version>
 	</dependency>
+	<!-- <dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-log4j12</artifactId>
+	    <scope>test</scope>
+	</dependency> -->
+	
+	<dependency>
+	   <groupId>org.apache.hive</groupId>
+	   <artifactId>hive-jdbc</artifactId>
+	   <version>1.2.1</version>
+	   <exclusions>
+	      <exclusion>
+	         <artifactId>servlet-api</artifactId>
+	         <groupId>javax.servlet</groupId>
+	      </exclusion>
+	   </exclusions>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.hadoop</groupId>
+		<artifactId>hadoop-common</artifactId>
+		<version>2.6.0</version>
+		 <exclusions>
+	      <exclusion>
+	         <artifactId>servlet-api</artifactId>
+	         <groupId>javax.servlet</groupId>
+	      </exclusion>
+	   </exclusions>
+	</dependency>
+	<dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client</artifactId>
+        <version>2.7.1</version>
+        <exclusions>
+	      <exclusion>
+	         <artifactId>servlet-api</artifactId>
+	         <groupId>javax.servlet</groupId>
+	      </exclusion>
+	   </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.hive</groupId>
+        <artifactId>hive-metastore</artifactId>
+        <version>1.2.1</version>
+        <exclusions>
+	      <exclusion>
+	         <artifactId>servlet-api</artifactId>
+	         <groupId>javax.servlet</groupId>
+	      </exclusion>
+	   </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.hive</groupId>
+        <artifactId>hive-exec</artifactId>
+        <version>1.2.1</version>
+        <exclusions>
+	      <exclusion>
+	         <artifactId>servlet-api</artifactId>
+	         <groupId>javax.servlet</groupId>
+	      </exclusion>
+	   </exclusions>
+    </dependency>
   </dependencies>
   <build>
     <finalName>Chenyh</finalName>

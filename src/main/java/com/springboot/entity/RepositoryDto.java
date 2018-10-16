@@ -1,5 +1,10 @@
 package com.springboot.entity;
 
+/**
+ * 创建资源库参数实体类
+ * @author 96257
+ *
+ */
 public class RepositoryDto {
 	private String name;
 	private String decrible;

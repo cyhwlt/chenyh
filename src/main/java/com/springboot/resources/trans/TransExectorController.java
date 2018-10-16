@@ -70,14 +70,6 @@ public class TransExectorController {
 		if(isConnect != null){
 			this.kdrService.runTrans(fileName);
 		}
-		//获取kdr文件
-//		SpoonPerspectiveManager manager = SpoonPerspectiveManager.getInstance();
-//		if(manager != null && manager.getActivePerspective() != null){
-//			EngineMetaInterface activeMeta = manager.getActivePerspective().getActiveMeta();
-//			if(activeMeta instanceof TransMeta){
-//			TransMeta transMeta = (TransMeta)activeMeta;
-//			}
-//		}
 	}
 	
 	/**
@@ -106,7 +98,7 @@ public class TransExectorController {
 	}
 	
 	/**
-	 * 生成excel文件到库的转换文件
+	 * 生成excel文件到库的转换文件（通用）
 	 * @param dto
 	 * @throws Exception
 	 */
@@ -116,16 +108,16 @@ public class TransExectorController {
 		this.etdtService.excelToDatabase(dto);
 	}
 	
+	/**
+	 * 解析excel文件
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(path="/analysis", method=RequestMethod.POST, produces="application/json", consumes="application/json")
 	@ResponseBody
 	public String anaylsisExcel(@RequestBody ExcelAnalysisDto dto) throws Exception{
 		ExcelInputField[] results = this.etdtService.analysisFile(dto.getFilePath(), dto.getSheetNumber());
 		return JsonUtil.objectToJson(results);
 	}
-	
-	@RequestMapping(path="/test", method=RequestMethod.GET)
-	public void test() throws Exception{
-//		this.etdtService.analysisFile("E:\\kettleTest\\file1.xls.xls");
-	}
-	
 }

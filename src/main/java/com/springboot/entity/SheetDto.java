@@ -2,10 +2,15 @@ package com.springboot.entity;
 
 import java.util.List;
 
+/**
+ * excel输入源实体
+ * @author 96257
+ *
+ */
 public class SheetDto {
 	private List<ExcelInputDto> dtos;
-	private String sheetName;
-	private String primaryKey;
+	private String sheetName; // excel某个sheet的名称
+	private String primaryKey; // 对应表的主键
 	
 	public String getSheetName() {
 		return sheetName;

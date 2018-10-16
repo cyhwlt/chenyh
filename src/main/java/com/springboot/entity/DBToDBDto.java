@@ -1,5 +1,10 @@
 package com.springboot.entity;
 
+/**
+ * 迁移库的参数实体
+ * @author 96257
+ *
+ */
 public class DBToDBDto {
 	private String transName; //转换名称
 	private String inputTableName; //输入源表名
