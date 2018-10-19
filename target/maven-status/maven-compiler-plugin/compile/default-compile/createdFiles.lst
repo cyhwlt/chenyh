@@ -1,10 +1,14 @@
+com\springboot\service\job\JobService.class
 org\pentaho\di\core\database\Hive2SQLDatabaseMeta.class
 com\springboot\entity\DatabaseDto.class
 com\springboot\SpringbootLaunch.class
 com\springboot\resources\zframeworktest\UserController.class
+com\springboot\entity\JobScheduleDto.class
 com\springboot\util\KettleUtil.class
 com\springboot\service\zframeworktest\impl\UserServiceImpl.class
 com\springboot\service\zframeworktest\UserService.class
+com\springboot\resources\job\JobExcutorController.class
+com\springboot\entity\JobDto.class
 com\springboot\resources\dbrepository\KettleDatabaseRepositoryController.class
 com\springboot\service\repository\RepositoryService.class
 com\springboot\bean\Database.class

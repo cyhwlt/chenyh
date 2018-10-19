@@ -17,10 +17,14 @@ F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\ExcelToDBDto.jav
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\zframeworktest\UserService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\repository\RepositoryService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\util\KettleUtil.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\JobDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\resources\job\JobExcutorController.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\dbrepository\KettleDatabaseRepositoryService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\DatabaseDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\resources\dbrepository\KettleDatabaseRepositoryController.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\test\ConnectHive.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\resources\trans\TransExectorController.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\job\JobService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\SheetDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\JobScheduleDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\org\pentaho\di\core\database\Hive2SQLDatabaseMeta.java

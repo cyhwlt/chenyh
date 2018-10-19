@@ -154,7 +154,7 @@ public class ExcelToDatabaseTransService {
 		
 		String eiPluginId = registryID.getPluginId(StepPluginType.class, eiMeta); 
 		StepMeta stepMeta = new StepMeta(eiPluginId,"excel输入",eiMeta);
-		transMeta.addStep(stepMeta);
+		transMeta.addStep(stepMeta); 
 		
 		//添加hop将两个步骤关联起来
 		transMeta.addTransHop(new TransHopMeta(stepMeta, insertStep));
@@ -233,9 +233,4 @@ public class ExcelToDatabaseTransService {
 		}
 		return array;
 	}
-
-	public void excelToHive(ExcelToDBDto dto) {
-		
-	}
-
 }
