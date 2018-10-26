@@ -1,6 +1,7 @@
 package com.springboot.resources.trans;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,9 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.springboot.entity.DBToDBDto;
-import com.springboot.entity.ExcelAnalysisDto;
-import com.springboot.entity.ExcelToDBDto;
+import com.springboot.entity.database.DBToDBDto;
+import com.springboot.entity.database.SQLDto;
+import com.springboot.entity.excel.ExcelAnalysisDto;
+import com.springboot.entity.excel.ExcelToDBDto;
 import com.springboot.service.dbrepository.ExcelToDatabaseTransService;
 import com.springboot.service.dbrepository.KettleDatabaseRepositoryService;
 import com.springboot.service.repository.RepositoryService;
@@ -84,20 +86,6 @@ public class TransExectorController {
 	}
 	
 	/**
-	 * excel文件上传
-	 * @param request
-	 * @param file
-	 * @param model
-	 * @return
-	 * @throws IOException
-	 */
-	@RequestMapping(path="/upload", method=RequestMethod.POST, produces="application/json")
-	@ResponseBody
-	public String  uploadExcel(HttpServletRequest request, @RequestParam("upload")MultipartFile file, Model model) throws IOException {
-		return kdrService.upload(request, file, model);
-	}
-	
-	/**
 	 * 生成excel文件到库的转换文件（通用）
 	 * @param dto
 	 * @throws Exception
@@ -109,15 +97,24 @@ public class TransExectorController {
 	}
 	
 	/**
-	 * 解析excel文件
-	 * @param dto
-	 * @return
-	 * @throws Exception
+	 * 转换时自动生成表
+	 * 1.判断该表名在该数据库中是否已经存在
+	 * 2.若已存在则直接返回没有sql语句可执行，若不存在 则获取excel解析后的字段，生成创建表语句
+	 * 3.执行创建
+	 * @throws Exception 
 	 */
-	@RequestMapping(path="/analysis", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	@RequestMapping(path="/sql", method=RequestMethod.POST, produces="application/json", consumes="application/json")
 	@ResponseBody
-	public String anaylsisExcel(@RequestBody ExcelAnalysisDto dto) throws Exception{
-		ExcelInputField[] results = this.etdtService.analysisFile(dto.getFilePath(), dto.getSheetNumber());
-		return JsonUtil.objectToJson(results);
+	public void sql(@RequestBody SQLDto dto) throws Exception{
+		this.etdtService.sql(dto);
+	}
+	
+	// 测试接口
+	@RequestMapping(path="/test/{tableName}", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	@ResponseBody
+	public List<String> test(@PathVariable("tableName") String tableName){
+//		return this.etdtService.getColumnNames(tableName);
+//		return this.etdtService.getColumnTypes(tableName);
+		return null;
 	}
 }

@@ -1,13 +1,13 @@
 <job>
-  <name>job019</name>
+  <name>job020</name>
   <description/>
   <extended_description/>
   <job_version/>
   <directory>/</directory>
   <created_user>-</created_user>
-  <created_date>2018/10/19 16:18:05.398</created_date>
+  <created_date>2018/10/22 16:12:26.460</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2018/10/19 16:18:05.398</modified_date>
+  <modified_date>2018/10/22 16:12:26.460</modified_date>
   <parameters>
     </parameters>
   <slaveservers>
@@ -291,10 +291,10 @@
       <type>SPECIAL</type>
       <start>Y</start>
       <dummy>N</dummy>
-      <repeat>N</repeat>
-      <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
+      <repeat>Y</repeat>
+      <schedulerType>1</schedulerType>
+      <intervalSeconds>10</intervalSeconds>
+      <intervalMinutes>0</intervalMinutes>
       <hour>12</hour>
       <minutes>0</minutes>
       <weekDay>1</weekDay>
@@ -335,8 +335,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>200</xloc>
-      <yloc>100</yloc>
+      <xloc>100</xloc>
+      <yloc>400</yloc>
     </entry>
     <entry>
       <name>Success</name>
@@ -345,19 +345,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>100</yloc>
-    </entry>
-    <entry>
-      <name>Abort Job</name>
-      <description/>
-      <type>ABORT</type>
-      <message/>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>300</yloc>
+      <xloc>100</xloc>
+      <yloc>800</yloc>
     </entry>
   </entries>
   <hops>
@@ -373,15 +362,6 @@
     <hop>
       <from>转换</from>
       <to>Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>转换</from>
-      <to>Abort Job</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>

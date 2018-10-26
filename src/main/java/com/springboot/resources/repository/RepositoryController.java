@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.springboot.entity.DatabaseDto;
-import com.springboot.entity.RepositoryDto;
+import com.springboot.entity.database.DatabaseDto;
+import com.springboot.entity.database.RepositoryDto;
 import com.springboot.service.repository.RepositoryService;
 
 @Component

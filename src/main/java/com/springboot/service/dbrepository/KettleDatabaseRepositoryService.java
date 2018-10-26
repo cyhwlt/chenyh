@@ -1,24 +1,17 @@
 package com.springboot.service.dbrepository;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -30,12 +23,13 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.springboot.entity.DBToDBDto;
-import com.springboot.entity.DatabaseDto;
+import com.springboot.entity.database.DBToDBDto;
+import com.springboot.entity.database.DatabaseDto;
+import com.springboot.entity.database.QuerySqlDto;
+import com.springboot.util.JsonUtil;
 
 
 @Service
@@ -43,6 +37,11 @@ public class KettleDatabaseRepositoryService {
 	
 	private static Logger logger = LogManager.getLogger(KettleDatabaseRepositoryService.class); 
 	public String RES_DIR = "res";
+	ResultSet rs = null;
+	PreparedStatement stmt = null;
+	
+	@Autowired
+	private ExcelToDatabaseTransService edtService;
 	
 	public void runTrans(String fileName) throws KettleException{
 		String fullFileName = null;
@@ -181,36 +180,63 @@ public class KettleDatabaseRepositoryService {
 		return array;
 	}
 
-	public String upload(HttpServletRequest request, MultipartFile file, Model model) throws IOException {
-		String msg = "";
-	    int count = 1;
-	    byte[] bytes = file.getBytes();
-	    Long currentTimeMillis = System.currentTimeMillis();
-	    Path path = Paths.get("E:\\" + currentTimeMillis + "_" + file.getOriginalFilename());
-	    Files.write(path,bytes);
-	    File f = new File(path.toString());
-	    FileInputStream fileInputStream = new FileInputStream(f);
-	    Workbook workbook = new HSSFWorkbook(fileInputStream);
-	    fileInputStream.close();
-	    Sheet sheet = workbook.getSheetAt(0);
-	    byte[] b = new byte[1024];
-	    Iterator<Row> iterator = sheet.rowIterator();
-	    while (iterator.hasNext()){
-	        try {
-	            Row row = iterator.next();
-	            count ++;
-	        }catch (Exception e){
-	            e.printStackTrace();
-	            msg = "在导入第"+count+"行数据时报错;";
-	            break;
-	        }
-	    }
-	    if ("".equals(msg)){
-	        msg = "导入成功！共导入"+count+"条试题";
-	    }
-	    model.addAttribute("msg",msg);
-	    return "system/import_result";
-		
+	public String getSql(QuerySqlDto dto) {
+		Connection con = this.edtService.getConnection(dto.getDbDto());
+		String sql = "select ";
+		if(!dto.isContainFields()){
+			sql += "*";
+		}else {
+			try {
+				String sql0 = "select * from " + dto.getTableName();
+				stmt = con.prepareStatement(sql0);
+				rs = stmt.executeQuery(sql0);
+				ResultSetMetaData data = rs.getMetaData();
+				int columnCount = data.getColumnCount();
+				for(int i=1; i<=columnCount; i++){
+					// 获取字段
+					sql += data.getColumnName(i);
+					if(i < columnCount){
+						sql += ",";
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}finally{
+				try {
+					rs.close();
+					stmt.close();
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		sql += " from " + dto.getTableName();
+		return sql;
 	}
-	
+
+	public String getTables(DatabaseDto dto){
+		Connection con = this.edtService.getConnection(dto);
+		List<String> list = new ArrayList<String>();
+		String sql = "show tables";
+		logger.info("Running: " + sql);
+		try {
+			stmt = con.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			while(rs.next()){
+				list.add(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			logger.error("SQLException: " + e.getMessage());
+		}finally{
+			try {
+				rs.close();
+				stmt.close();
+				con.close();
+			} catch (SQLException e) {
+				logger.error("SQLException: " + e.getMessage());
+			}
+		}
+		return JsonUtil.objectToJson(list);
+	}
 }
