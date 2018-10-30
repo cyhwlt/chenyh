@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -43,8 +45,9 @@ public class KettleDatabaseRepositoryService {
 	@Autowired
 	private ExcelToDatabaseTransService edtService;
 	
-	public void runTrans(String fileName) throws KettleException{
+	public Map<String, Object> runTrans(String fileName) throws KettleException{
 		String fullFileName = null;
+		Map<String, Object> returnValue = new HashMap();
 		String property = System.getProperty("user.dir");
 		String separator = File.separator;
 		fullFileName = property + separator + RES_DIR;
@@ -54,21 +57,36 @@ public class KettleDatabaseRepositoryService {
 		trans.execute(null);
 		trans.waitUntilFinished();
 		if(trans.getErrors()>0){
+			returnValue.put("code", 0);
+			returnValue.put("message", "转换异常");
+			returnValue.put("data", null);
 			logger.error("有异常");
+		}else{
+			returnValue.put("code", -1);
+			returnValue.put("message", "");
+			returnValue.put("data", null);
 		}
+		return returnValue;
 	}
 	
-	public void generateKtr(DBToDBDto dto) throws KettleException{
+	public Map<String, Object> generateKtr(DBToDBDto dto) throws KettleException{
+		Map<String, Object> returnValue = new HashMap();
 		try {
 			TransMeta generateTrans = this.generateTrans(dto);
 			String xml = generateTrans.getXML();
-//			String transName = "generatektr_cyh.ktr";
 			String transName = dto.getTransName();
 			File file = new File(transName);
 			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", xml);
 		} catch(Exception e){
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
 			logger.error(e.getMessage());
 		}
+		return returnValue;
 	}
 	
 	//数据库表数据之间的转换
@@ -180,13 +198,14 @@ public class KettleDatabaseRepositoryService {
 		return array;
 	}
 
-	public String getSql(QuerySqlDto dto) {
+	public Map<String, Object> getSql(QuerySqlDto dto) {
+		Map<String, Object> returnValue = new HashMap();
 		Connection con = this.edtService.getConnection(dto.getDbDto());
 		String sql = "select ";
-		if(!dto.isContainFields()){
-			sql += "*";
-		}else {
-			try {
+		try {
+			if(!dto.isContainFields()){
+				sql += "*";
+			}else {
 				String sql0 = "select * from " + dto.getTableName();
 				stmt = con.prepareStatement(sql0);
 				rs = stmt.executeQuery(sql0);
@@ -199,23 +218,30 @@ public class KettleDatabaseRepositoryService {
 						sql += ",";
 					}
 				}
+			}
+			sql += " from " + dto.getTableName();
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", sql);
+		} catch (SQLException e) {
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
+			logger.error("获取sql语句失败：" + e.getMessage());
+		}finally{
+			try {
+				rs.close();
+				stmt.close();
+				con.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-			}finally{
-				try {
-					rs.close();
-					stmt.close();
-					con.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
 		}
-		sql += " from " + dto.getTableName();
-		return sql;
+		return returnValue;
 	}
 
-	public String getTables(DatabaseDto dto){
+	public Map<String, Object> getTables(DatabaseDto dto){
+		Map<String, Object> returnValue = new HashMap();
 		Connection con = this.edtService.getConnection(dto);
 		List<String> list = new ArrayList<String>();
 		String sql = "show tables";
@@ -226,7 +252,13 @@ public class KettleDatabaseRepositoryService {
 			while(rs.next()){
 				list.add(rs.getString(1));
 			}
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", list);
 		} catch (SQLException e) {
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
 			logger.error("SQLException: " + e.getMessage());
 		}finally{
 			try {
@@ -237,6 +269,6 @@ public class KettleDatabaseRepositoryService {
 				logger.error("SQLException: " + e.getMessage());
 			}
 		}
-		return JsonUtil.objectToJson(list);
+		return returnValue;
 	}
 }

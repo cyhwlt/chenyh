@@ -23,14 +23,12 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
 import org.pentaho.di.trans.steps.excelinput.ExcelInputMeta;
 import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.entity.database.DatabaseDto;
 import com.springboot.entity.database.SQLDto;
 import com.springboot.entity.excel.ExcelInputDto;
 import com.springboot.entity.excel.ExcelToDBDto;
-import com.springboot.service.excel.ExcelService;
 
 @Service
 public class ExcelToDatabaseTransService {
@@ -40,19 +38,24 @@ public class ExcelToDatabaseTransService {
 	private static Connection conn;
 	private static ResultSetMetaData metaData;
 	
-	@Autowired
-	private ExcelService xlsService;
-
-	public void excelToDatabase(ExcelToDBDto dto){
+	public Map<String, Object> excelToDatabase(ExcelToDBDto dto){
+		Map<String, Object> returnValue = new HashMap();
 		try {
 			TransMeta generateTrans = this.generateKtr(dto);
 			String xml = generateTrans.getXML();
 			String transName = dto.getTransName();
 			File file = new File(transName);
 			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", xml);
 		} catch (Exception e) {
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
 			logger.error(e.getMessage());
 		}
+		return returnValue;
 	}
 	
 	/**
@@ -209,32 +212,47 @@ public class ExcelToDatabaseTransService {
 	
 	
 	// excel——>数据库表
-	public boolean sql(SQLDto sqlDto) throws Exception{
+	public Map<String, Object> sql(SQLDto sqlDto){
 		Connection conn = getConnection(sqlDto.getOutdbDto());
-		String sql = null;
-		//判断表是否存在
-		boolean exitTable = exitTable(sqlDto.getOutputTabName());
-		if(exitTable){ //表已存在
-			logger.info("没有SQL需要执行");
-			return false;
-		}else{ //表不存在 从excel里获取字段，拼接createsql
-			switch(sqlDto.getTransType()){
-			case dbTodb:
-				sql = dbTodb(sqlDto);
-				break;
-			case excelTodb:
-				sql = excelTodb(sqlDto);
-				break;
+		Map<String, Object> returnValue = new HashMap();
+		try{
+			String sql = null;
+			//判断表是否存在
+			boolean exitTable = exitTable(sqlDto.getOutputTabName());
+			if(exitTable){ //表已存在
+				logger.info("没有SQL需要执行");
+			}else{ //表不存在 从excel里获取字段，拼接createsql
+				switch(sqlDto.getTransType()){
+				case dbTodb:
+					sql = dbTodb(sqlDto);
+					break;
+				case excelTodb:
+					sql = excelTodb(sqlDto);
+					break;
+				}
+				// 设置字符集
+				sql += ");";
+				logger.info("建表语句：" + sql);
+				ps = conn.prepareStatement(sql);
+			    ps.executeUpdate(sql);
 			}
-			// 设置字符集
-			sql += ");";
-			logger.info("建表语句：" + sql);
-			ps = conn.prepareStatement(sql);
-		    ps.executeUpdate(sql);
-		    ps.close();
-		    conn.close();  //关闭数据库连接
-		    return true;
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", sql);
+		} catch(Exception e){
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
+			logger.error(e.getMessage());
+		} finally{
+			  try {
+				ps.close();
+				conn.close();  //关闭数据库连接
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
+		return returnValue;
 	}
 	
 	//获取数据库连接
@@ -309,7 +327,8 @@ public class ExcelToDatabaseTransService {
 	//excel入库时表不存在生成表
 	public String excelTodb(SQLDto dto) throws Exception{
 		String sql = "create table " + dto.getOutputTabName() + "(";
-		ExcelInputField[] excelFields = this.xlsService.analysisFile(dto.getExcelDto().getFilePath(), dto.getExcelDto().getSheetNumber());
+//		ExcelInputField[] excelFields = this.xlsService.analysisFile(dto.getExcelDto().getFilePath(), dto.getExcelDto().getSheetNumber());
+		ExcelInputField[] excelFields = null;
 		int length = excelFields.length;
 		if(excelFields != null && length > 0){
 			for(int i=0; i<length; i++){

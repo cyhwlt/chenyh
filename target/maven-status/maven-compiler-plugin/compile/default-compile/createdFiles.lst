@@ -1,5 +1,6 @@
 com\springboot\entity\job\JobSuccessDto.class
 com\springboot\resources\excel\ExcelController.class
+com\springboot\entity\result\ReturnValueDto.class
 com\springboot\service\job\JobService.class
 org\pentaho\di\core\database\Hive2SQLDatabaseMeta.class
 com\springboot\entity\job\JobScheduleDto.class

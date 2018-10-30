@@ -1,12 +1,13 @@
 package com.springboot.service.repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleSecurityException;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.RepositoryPluginType;
 import org.pentaho.di.repository.RepositoriesMeta;
@@ -22,19 +23,31 @@ public class RepositoryService {
 	private RepositoriesModel model;
 	private RepositoriesMeta input;
 	
-	public Object connectRepository(String repositoryName) throws KettleSecurityException, KettleException{
-		RepositoryMeta selectedRepository = getSelectedRepository(repositoryName);
-		RepositoryMeta repositoryMeta = input.getRepository(model.getRepositoryIndex(selectedRepository));
-		Repository repository = PluginRegistry.getInstance().loadClass(RepositoryPluginType.class, repositoryMeta.getId(), Repository.class );
-		repository.init(repositoryMeta);
-		repository.connect("admin", "admin");
-		if(repository.isConnected()){
-			logger.info("连接成功");
-			return repository;
-		}else{
-			logger.error("连接失败");
-			return null;
+	public Map<String, Object> connectRepository(String repositoryName){
+		Map<String, Object> returnValue = new HashMap();
+		try {
+			RepositoryMeta selectedRepository = getSelectedRepository(repositoryName);
+			RepositoryMeta repositoryMeta = input.getRepository(model.getRepositoryIndex(selectedRepository));
+			Repository repository = PluginRegistry.getInstance().loadClass(RepositoryPluginType.class, repositoryMeta.getId(), Repository.class );
+			repository.init(repositoryMeta);
+			repository.connect("admin", "admin");
+			returnValue.put("code", 0);
+			returnValue.put("message", "连接成功");
+			returnValue.put("data", null);
+		} catch (Exception e) {
+			returnValue.put("code", 0);
+			returnValue.put("message", "连接失败");
+			returnValue.put("data", null);
+			e.printStackTrace();
 		}
+//		if(repository.isConnected()){
+//			logger.info("连接成功");
+//			return repository;
+//		}else{
+//			logger.error("连接失败");
+//			return null;
+//		}
+		return returnValue;
 	}
 	
 	/**

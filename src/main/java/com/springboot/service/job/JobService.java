@@ -3,12 +3,14 @@ package com.springboot.service.job;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobHopMeta;
 import org.pentaho.di.job.JobMeta;
@@ -27,42 +29,52 @@ public class JobService {
 	
 	private static Logger logger = LogManager.getLogger(JobService.class);
 	
-	public void runJob(JobScheduleDto dto){
-		try {
-            // jobname 是Job脚本的路径及名称
-            JobMeta jobMeta = new JobMeta(dto.getKjbPath(), null);
-//            JobMeta jobMeta = new JobMeta(dto.getKjbPath(), null);
+	public Map<String, Object> runJob(JobScheduleDto dto) throws Exception{
+		Map<String, Object> returnValue = new HashMap();
+        // jobname 是Job脚本的路径及名称
+        JobMeta jobMeta = new JobMeta(dto.getKjbPath(), null);
+        Job job = new Job(null, jobMeta);
+        job.setVariable("id", "1");
+        job.setVariable("content", "content");
+        job.setVariable("file", "9");
+//          job.setVariable("file", dto.getLogPath());
 
-            Job job = new Job(null, jobMeta);
-            job.setVariable("id", "1");
-            job.setVariable("content", "content");
-            job.setVariable("file", "9");
-//            job.setVariable("file", dto.getLogPath());
-
-            job.start();
-            job.waitUntilFinished();
-            if (job.getErrors() > 0) {
-            	logger.error("There are errors during job exception!(执行job发生异常)");
-            }
-        } catch (Exception e) {
-        	logger.error(e.getMessage());
+        job.start();
+        job.waitUntilFinished();
+        if (job.getErrors() > 0) {
+        	returnValue.put("code", -1);
+        	returnValue.put("message", "There are errors during job exception!(执行job发生异常)");
+        	returnValue.put("data", null);
+        	logger.error("There are errors during job exception!(执行job发生异常)");
         }
+        returnValue.put("code", 0);
+        returnValue.put("message", "");
+        returnValue.put("data", null);
+        return returnValue;   
 	}
 
-	public void generateJobFile(JobDto dto) {
-		JobMeta generateJob = new JobMeta();
-		if(dto.isSerial()){
-			generateJob = serialJob(dto);
-		}else{
-			generateJob = parallelJob(dto);
-		}
-		String xml = generateJob.getXML();
-		File file = new File(dto.getFileName());
+	public Map<String, Object> generateJobFile(JobDto dto) {
+		Map<String, Object> returnValue = new HashMap();
 		try {
+			JobMeta generateJob = new JobMeta();
+			if(dto.isSerial()){
+				generateJob = serialJob(dto);
+			}else{
+				generateJob = parallelJob(dto);
+			}
+			String xml = generateJob.getXML();
+			File file = new File(dto.getFileName());
 			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			returnValue.put("code", 0);
+			returnValue.put("messsage", "");
+			returnValue.put("data", xml);
 		} catch (IOException e) {
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
 			logger.error("生成job转换文件异常：" + e.getMessage());
 		}
+		return returnValue;
 	}
 	
 	public JobMeta serialJob(JobDto dto) {
