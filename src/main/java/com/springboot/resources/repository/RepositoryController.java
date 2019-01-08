@@ -67,7 +67,7 @@ public class RepositoryController {
 			returnValue.put("code", -1);
 			returnValue.put("message", e.getMessage());
 			returnValue.put("data", null);
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 	
@@ -142,9 +142,8 @@ public class RepositoryController {
 		return returnValue;
 	}
 	
-	/**
+	/**  
 	 * 连接资源库：选中一个资源库，建立连接
-	 * @return 
 	 * @return 
 	 * @throws KettleException 
 	 * @throws KettleSecurityException 

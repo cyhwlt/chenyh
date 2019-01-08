@@ -12,6 +12,7 @@ F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\zframeworktest\
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\bean\User.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\bean\Database.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\SpringbootLaunch.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\database\ElasticsearchDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\database\RepositoryDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\util\DBUtil.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\JobSuccessDto.java
@@ -34,8 +35,10 @@ F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\JobTransDto.
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\job\JobService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\database\DBToDBDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\ParallelJobDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\result\ReturnValueDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\excel\ExcelService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\JobStartDto.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\SerialJobDto.java
+F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\service\common\CommonService.java
 F:\kettle\kettle7104\Chenyh\src\main\java\org\pentaho\di\core\database\Hive2SQLDatabaseMeta.java
 F:\kettle\kettle7104\Chenyh\src\main\java\com\springboot\entity\job\JobDto.java

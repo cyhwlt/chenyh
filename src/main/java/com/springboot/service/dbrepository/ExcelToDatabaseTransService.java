@@ -23,12 +23,14 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
 import org.pentaho.di.trans.steps.excelinput.ExcelInputMeta;
 import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.entity.database.DatabaseDto;
 import com.springboot.entity.database.SQLDto;
 import com.springboot.entity.excel.ExcelInputDto;
 import com.springboot.entity.excel.ExcelToDBDto;
+import com.springboot.service.common.CommonService;
 
 @Service
 public class ExcelToDatabaseTransService {
@@ -37,6 +39,9 @@ public class ExcelToDatabaseTransService {
 	private static PreparedStatement ps;
 	private static Connection conn;
 	private static ResultSetMetaData metaData;
+	
+	@Autowired
+	private CommonService comService;
 	
 	public Map<String, Object> excelToDatabase(ExcelToDBDto dto){
 		Map<String, Object> returnValue = new HashMap();
@@ -58,6 +63,43 @@ public class ExcelToDatabaseTransService {
 		return returnValue;
 	}
 	
+	public Map<String, Object> exceltoES(ExcelToDBDto dto) {
+		Map<String, Object> returnValue = new HashMap();
+		try {
+			TransMeta generateTrans = this.generateExceltoESKtr(dto);
+			String xml = generateTrans.getXML();
+			String transName = dto.getTransName();
+			File file = new File(transName);
+			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", xml);
+		} catch (Exception e) {
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
+			logger.error(e.getMessage());
+		}
+		return returnValue;
+	}
+	
+	public TransMeta generateExceltoESKtr(ExcelToDBDto dto){
+		TransMeta transMeta = new TransMeta();
+		transMeta.setName(dto.getTransName());
+		
+		PluginRegistry registryID = PluginRegistry.getInstance();
+		StepMeta excelInputStep = this.comService.excelInput(dto, registryID);
+		StepMeta esBulkInsertStep = this.comService.esBulkInsert(dto.getEsDB(), registryID);
+		
+		transMeta.addStep(excelInputStep);
+		transMeta.addStep(esBulkInsertStep);
+		
+		transMeta.addTransHop(new TransHopMeta(excelInputStep, esBulkInsertStep));
+		logger.info("***********the end*************");
+		return transMeta;
+	}
+	
+	
 	/**
 	 * 1.excel输入
 	 * 2.表输出
@@ -77,100 +119,14 @@ public class ExcelToDatabaseTransService {
 		}
 		// registry是给每个步骤生成一个标识ID
 		PluginRegistry registryID = PluginRegistry.getInstance();
-		
-		//1.设置表输出参数
-		InsertUpdateMeta insertMeta = new InsertUpdateMeta();
-		String iuPluginId = registryID.getPluginId(StepPluginType.class, insertMeta);
-		//添加数据库连接
-		DatabaseMeta db_chenyh = transMeta.findDatabase(dto.getOutputDB().getConnName());
-		insertMeta.setDatabaseMeta(db_chenyh);
-		//设置操作的表
-		insertMeta.setTableName(dto.getOutputTableName());
-		
-		//设置用来查询的关键字
-		insertMeta.setKeyLookup(new String[]{dto.getSheets().getPrimaryKey()});
-		insertMeta.setKeyStream(new String[]{dto.getSheets().getPrimaryKey()});
-		insertMeta.setKeyStream2(new String[]{""});
-		insertMeta.setKeyCondition(new String[]{"="});
-		
-		// 生成要更新的字段
-		String[] update = generateField(dto.getFields());
-		//设置要更新的字段
-		Boolean[] updateOrNot = {false, true, true, true, true, true, true};
-		insertMeta.setUpdateLookup(update);
-		insertMeta.setUpdateStream(update);
-		insertMeta.setUpdate(updateOrNot);
-		insertMeta.getUpdateLookup();
-		//添加到转换中
-		StepMeta insertStep = new StepMeta(iuPluginId, "表输出", insertMeta);
-		insertStep.setDraw(true);
-		insertStep.setLocation(250, 100);
-		transMeta.addStep(insertStep);
-		
-		//2.设置excel输入参数
-		ExcelInputMeta eiMeta = new ExcelInputMeta();
-		// 读取excel文件，获取字段
-		List<ExcelInputDto> sheets = dto.getSheets().getDtos();
-		int size = sheets.size();
-//		ExcelInputField[] fields = analysisFile(dto.getFilePath(),2);
-		ExcelInputField[] fields = new ExcelInputField[size];
-		int i = 0;
-		for (ExcelInputDto sheet : sheets) {
-			fields[i] = new ExcelInputField();
-			fields[i].setName(sheet.getName());
-			i++;
-		}
-		eiMeta.setField(fields);
-		String[] fileName  = new String[]{dto.getFilePath()};
-		String[] fileMask = {};
-		String[] fileRequired = {"N"};
-		eiMeta.setFileName(fileName);
-//		eiMeta.setFileMask(fileMask);
-//		eiMeta.setExcludeFileMask(fileMask);
-		eiMeta.setFileRequired(fileRequired);
-		eiMeta.setIncludeSubFolders(fileRequired);
-//		eiMeta.setFileField("");
-//		eiMeta.setSheetField("");
-//		eiMeta.setSheetRowNumberField("");
-//		eiMeta.setRowNumberField("");
-		eiMeta.setAddResultFile(true);
-		eiMeta.setStartsWithHeader(true);
-		eiMeta.setIgnoreEmptyRows(true);
-		eiMeta.setStopOnEmpty(false);
-		eiMeta.setAcceptingFilenames(false);
-//		eiMeta.setAcceptingField("");
-//		eiMeta.setAcceptingStepName("");
-//		eiMeta.allocate(1, 1, 1);
-		String name = dto.getSheets().getSheetName();
-		String[] sheetName = {name};
-		eiMeta.setSheetName(sheetName);
-		int[] row = {0};
-		int[] col = {0};
-		eiMeta.setStartColumn(col);
-		eiMeta.setStartRow(row);
-		eiMeta.setStrictTypes(false);
-		eiMeta.setErrorIgnored(false);
-		eiMeta.setErrorLineSkipped(false);
-//		eiMeta.setWarningFilesDestinationDirectory("");
-		eiMeta.setBadLineFilesExtension("waring");
-//		eiMeta.setErrorFilesDestinationDirectory("");
-		eiMeta.setErrorFilesExtension("error");
-//		eiMeta.setLineNumberFilesDestinationDirectory("");
-		eiMeta.setLineNumberFilesExtension("line");
-//		eiMeta.setShortFileNameField("");
-//		eiMeta.setPathField("");
-//		eiMeta.setIsHiddenField("");
-//		eiMeta.setLastModificationDateField("");
-//		eiMeta.setUriField("");
-//		eiMeta.setRootUriField("");
-//		eiMeta.setSizeField("");
-		
-		String eiPluginId = registryID.getPluginId(StepPluginType.class, eiMeta); 
-		StepMeta stepMeta = new StepMeta(eiPluginId,"excel输入",eiMeta);
-		transMeta.addStep(stepMeta); 
+		StepMeta dbOutputStep = this.comService.tableOutput(transMeta, dto, registryID);
+		StepMeta excelInputStep = this.comService.excelInput(dto, registryID);
+		//添加到转换步骤
+		transMeta.addStep(dbOutputStep);
+		transMeta.addStep(excelInputStep); 
 		
 		//添加hop将两个步骤关联起来
-		transMeta.addTransHop(new TransHopMeta(stepMeta, insertStep));
+		transMeta.addTransHop(new TransHopMeta(excelInputStep, dbOutputStep));
 		logger.info("**********the end***********");
 		return transMeta;
 		
@@ -198,18 +154,6 @@ public class ExcelToDatabaseTransService {
 		};
 		return databasesXML;
 	}
-	
-	public String[] generateField(String fields){
-		String[] strs = fields.split(",");
-		List<String> field = new ArrayList();
-		for (String string : strs) {
-			field.add(string);
-		}
-		String[] array = field.toArray(new String[field.size()]);
-		return array;
-	}
-	
-	
 	
 	// excel——>数据库表
 	public Map<String, Object> sql(SQLDto sqlDto){

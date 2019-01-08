@@ -12,7 +12,7 @@ public class DBToDBDto {
 	private String fields; //表字段
 	private DatabaseDto inputDB; // 作为输入源的数据库
 	private DatabaseDto outputDB; // 作为输出源的数据库
-//	private String filePath; // excel文件路径
+	private ElasticsearchDto esDB; // es数据库（输出源）
 
 	public String getTransName() {
 		return transName;
@@ -61,4 +61,13 @@ public class DBToDBDto {
 	public void setOutputDB(DatabaseDto outputDB) {
 		this.outputDB = outputDB;
 	}
+
+	public ElasticsearchDto getEsDB() {
+		return esDB;
+	}
+
+	public void setEsDB(ElasticsearchDto esDB) {
+		this.esDB = esDB;
+	}
+	
 }

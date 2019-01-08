@@ -9,6 +9,7 @@ import org.pentaho.di.core.plugins.LifecyclePluginType;
 import org.pentaho.di.core.plugins.PluginFolder;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.RepositoryPluginType;
+import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.ui.job.dialog.JobDialogPluginType;
 import org.pentaho.di.ui.repository.dialog.RepositoryDialogInterface;
 import org.pentaho.di.ui.repository.dialog.RepositoryRevisionBrowserDialogInterface;
@@ -45,6 +46,9 @@ public class Spoon implements CommandLineRunner {
 
 	    PluginRegistry.addPluginType( JobDialogPluginType.getInstance() );
 	    PluginRegistry.addPluginType( TransDialogPluginType.getInstance() );
+	    
+	    // 加载elasticsearch插件
+	    StepPluginType.getInstance().getPluginFolders().add(new PluginFolder("C:/Users/96257/Desktop/kettle/pdi-ce-7.1.0.0-12/data-integration/plugins/elasticsearch-bulk-insert-plugin", false, true));
 	  }
 
 }

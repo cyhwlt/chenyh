@@ -1,6 +1,8 @@
 package com.springboot.service.dbrepository;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +16,10 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -23,6 +29,8 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransHopMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.trans.steps.elasticsearchbulk.ElasticSearchBulkMeta;
+import org.pentaho.di.trans.steps.elasticsearchbulk.ElasticSearchBulkMeta.Server;
 import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +39,7 @@ import org.springframework.stereotype.Service;
 import com.springboot.entity.database.DBToDBDto;
 import com.springboot.entity.database.DatabaseDto;
 import com.springboot.entity.database.QuerySqlDto;
-import com.springboot.util.JsonUtil;
+import com.springboot.service.common.CommonService;
 
 
 @Service
@@ -44,6 +52,9 @@ public class KettleDatabaseRepositoryService {
 	
 	@Autowired
 	private ExcelToDatabaseTransService edtService;
+	
+	@Autowired
+	private CommonService comService;
 	
 	public Map<String, Object> runTrans(String fileName) throws KettleException{
 		String fullFileName = null;
@@ -89,6 +100,50 @@ public class KettleDatabaseRepositoryService {
 		return returnValue;
 	}
 	
+	public Map<String, Object> generateDbtoES(DBToDBDto dto){
+		Map<String, Object> returnValue = new HashMap();
+		try {
+			TransMeta generateTrans = this.dbToES(dto);
+			String xml = generateTrans.getXML();
+			String transName = dto.getTransName();
+			File file = new File(transName);
+			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			returnValue.put("code", 0);
+			returnValue.put("message", "");
+			returnValue.put("data", xml);
+		} catch(Exception e){
+			returnValue.put("code", -1);
+			returnValue.put("message", e.getMessage());
+			returnValue.put("data", null);
+			logger.error(e.getMessage());
+		}
+		return returnValue;
+	}
+	
+	public TransMeta dbToES(DBToDBDto dto) throws Exception {
+		TransMeta transMeta = new TransMeta();
+		transMeta.setName("trans");
+		
+		String[] databasesXML = generateDBxml(dto.getInputDB(), dto.getOutputDB());
+		// 添加转换的数据库连接
+		for(int i=0; i<databasesXML.length; i++){
+			DatabaseMeta dbMeta = new DatabaseMeta(databasesXML[i]);
+			transMeta.addDatabase(dbMeta);
+		}
+		// registry是给每个步骤生成一个标识ID
+		PluginRegistry registryID = PluginRegistry.getInstance();
+		StepMeta tableInputStep = this.comService.tableInput(transMeta, dto, registryID);
+		transMeta.addStep(tableInputStep);
+		
+		StepMeta esBulkInsertStep = this.comService.esBulkInsert(dto.getEsDB(), registryID);
+		transMeta.addStep(esBulkInsertStep);
+		
+		//添加hop将两个步骤关联起来
+		transMeta.addTransHop(new TransHopMeta(tableInputStep, esBulkInsertStep));
+		logger.info("************the end************");
+		return transMeta;		
+	}
+	
 	//数据库表数据之间的转换
 	public TransMeta generateTrans(DBToDBDto dto) throws KettleXMLException{
 		TransMeta transMeta = new TransMeta();
@@ -115,7 +170,7 @@ public class KettleDatabaseRepositoryService {
 		tiMeta.setSQL(inSql);
 		// 添加tiMeta到转换中
 		StepMeta tims = new StepMeta(tiPluginId, "表输入", tiMeta);
-		tims.setDraw(true);
+		tims.setDraw(true); 
 		tims.setLocation(100, 100);
 		transMeta.addStep(tims);
 		

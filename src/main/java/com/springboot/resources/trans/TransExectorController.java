@@ -1,9 +1,12 @@
 package com.springboot.resources.trans;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleSecurityException;
@@ -21,6 +24,7 @@ import com.springboot.entity.excel.ExcelToDBDto;
 import com.springboot.service.dbrepository.ExcelToDatabaseTransService;
 import com.springboot.service.dbrepository.KettleDatabaseRepositoryService;
 import com.springboot.service.repository.RepositoryService;
+import com.springboot.util.JsonUtil;
 
 @Controller
 @RequestMapping("/trans")
@@ -103,12 +107,37 @@ public class TransExectorController {
 		return this.etdtService.sql(dto);
 	}
 	
-	// 测试接口
-	@RequestMapping(path="/test/{tableName}", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	/**
+	 * 生成表到es的转换文件
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(path="/es", method=RequestMethod.POST, produces="application/json", consumes="application/json")
 	@ResponseBody
-	public List<String> test(@PathVariable("tableName") String tableName){
-//		return this.etdtService.getColumnNames(tableName);
-//		return this.etdtService.getColumnTypes(tableName);
+	public Map<String, Object> dbToES(@RequestBody DBToDBDto dto) throws Exception{
+		return this.kdrService.generateDbtoES(dto);
+	}
+	
+	/**
+	 * 生成excel到es的转换文件
+	 * @param dto
+	 * @return
+	 */
+	@RequestMapping(path="/exceltoes", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	@ResponseBody
+	public Map<String, Object> excelToES(@RequestBody ExcelToDBDto dto){
+		return this.etdtService.exceltoES(dto);
+	}
+	
+	// 测试接口
+	@RequestMapping(path="/test", method=RequestMethod.GET, produces="application/json")
+	public List<String> test() throws IOException{
+		File file = new File("res/excel-es1.ktr");
+		List<String> readLines = FileUtils.readLines(file);
+		System.out.println("====="+ JsonUtil.objectToJson(readLines));
+		String readFileToString = FileUtils.readFileToString(file);
+		System.out.println("--------" + readFileToString);
 		return null;
 	}
 }
