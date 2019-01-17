@@ -7,6 +7,8 @@ public class SerialJobDto {
 	private JobStartDto startDto;
 	//trans
 	private List<JobTransDto> transDto;
+	//job
+	private List<JobDto> jobDto;
 	//success
 	private List<JobSuccessDto> successDto;
 	public JobStartDto getStartDto() {
@@ -27,41 +29,11 @@ public class SerialJobDto {
 	public void setSuccessDto(List<JobSuccessDto> successDto) {
 		this.successDto = successDto;
 	}
+	public List<JobDto> getJobDto() {
+		return jobDto;
+	}
+	public void setJobDto(List<JobDto> jobDto) {
+		this.jobDto = jobDto;
+	}
+	
 }
-
-//{
-//	"jobName":"job024",
-//	"fileName":"res\\job024.kjb",
-//	"startDto":{
-//		"startName":"START",
-//		"start":true,
-//		"repeat":false,
-//		"schedulerType":1,
-//		"intervalSeconds":10,
-//		"intervalMinutes":0,
-//		"hour":12,
-//		"minutes":0,
-//		"weekDay":1,
-//		"dayofMonth":1,
-//		"drawn":true,
-//		"parallel":true
-//	},
-//	"transDto":[
-//		{
-//		"transName":"TRANS1",
-//		"fileName":"res\\paneller01.ktr",
-//		"description":"",
-//		"drawn":true
-//		},
-//		{
-//		"transName":"TRANS2",
-//		"fileName":"res\\paneller02.ktr",
-//		"description":"",
-//		"drawn":true
-//		}
-//	],
-//	"successDto":{
-//		"successName":"SUCCESS",
-//		"drawn":true
-//	}
-//}

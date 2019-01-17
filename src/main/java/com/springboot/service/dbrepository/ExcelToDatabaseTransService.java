@@ -8,29 +8,32 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
+import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransHopMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
-import org.pentaho.di.trans.steps.excelinput.ExcelInputMeta;
-import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.entity.database.DatabaseDto;
+import com.springboot.entity.database.ElasticsearchDto;
 import com.springboot.entity.database.SQLDto;
 import com.springboot.entity.excel.ExcelInputDto;
 import com.springboot.entity.excel.ExcelToDBDto;
+import com.springboot.entity.excel.SheetDto;
 import com.springboot.service.common.CommonService;
+import com.springboot.service.excel.ExcelService;
 
 @Service
 public class ExcelToDatabaseTransService {
@@ -39,9 +42,13 @@ public class ExcelToDatabaseTransService {
 	private static PreparedStatement ps;
 	private static Connection conn;
 	private static ResultSetMetaData metaData;
+	public String RES_DIR = "res";
 	
 	@Autowired
 	private CommonService comService;
+	
+	@Autowired
+	private ExcelService xlsService;
 	
 	public Map<String, Object> excelToDatabase(ExcelToDBDto dto){
 		Map<String, Object> returnValue = new HashMap();
@@ -326,5 +333,60 @@ public class ExcelToDatabaseTransService {
 			}
 		}
 		return sql;
+	}
+
+	public void excelBulktoES(ExcelToDBDto dto, List<String> sheetNames) throws Exception {
+		//遍历excel的sheet
+		int count = 0;
+		for (String sheetName : sheetNames) {
+			//重组excel的数据
+			ExcelToDBDto excelDto = new ExcelToDBDto();
+			SheetDto sheet = new SheetDto();
+			sheet.setSheetName(sheetName);
+			Map<String, String> fields = (Map<String, String>) this.xlsService.analysisFile(dto.getFilePath(), count).get("data");
+			Set<String> keySet = fields.keySet();
+			Iterator<String> iterator = keySet.iterator();
+			List<ExcelInputDto> eiDtos = new ArrayList();
+			while(iterator.hasNext()){
+				String next = iterator.next();
+				ExcelInputDto eiDto = new ExcelInputDto();
+				eiDto.setName(next);
+				eiDto.setTypeDesc(fields.get(next));
+				eiDtos.add(eiDto);
+			}
+			sheet.setDtos(eiDtos);
+			excelDto.setSheets(sheet);
+			excelDto.setTransName("res/exceltoes_" + count + ".ktr");
+			// 修改
+			ElasticsearchDto esDto = dto.getEsDB();
+			esDto.setType(sheetName);
+			excelDto.setEsDB(dto.getEsDB());
+			excelDto.setFilePath(dto.getFilePath());
+			if(count > 0){
+				int count1 = count;
+				File file = new File("res/exceltoes_" + --count1 + ".ktr");
+				file.delete();
+			}
+			//生成转换文件
+			TransMeta generateTrans = this.generateExceltoESKtr(excelDto);
+			String xml = generateTrans.getXML();
+			String transName = excelDto.getTransName();
+			File file = new File(transName);
+			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			
+			// 执行转换文件
+			String fullFileName = null;
+			String property = System.getProperty("user.dir");
+			String separator = File.separator;
+			fullFileName = property + separator + RES_DIR;
+			fullFileName += "\\" + "exceltoes_" + count + ".ktr";
+			TransMeta meta = new TransMeta(fullFileName);
+			Trans trans = new Trans(meta);
+			trans.execute(null);
+			trans.waitUntilFinished();
+			count++;
+		}
+		File file = new File("res/exceltoes_" + --count + ".ktr");
+		file.delete();
 	}
 }

@@ -1,6 +1,7 @@
 package com.springboot.resources.excel;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.springboot.entity.excel.ExcelAnalysisDto;
+import com.springboot.entity.excel.ExcelToDBDto;
+import com.springboot.service.dbrepository.ExcelToDatabaseTransService;
 import com.springboot.service.excel.ExcelService;
 
 @Controller
@@ -23,6 +26,9 @@ import com.springboot.service.excel.ExcelService;
 public class ExcelController {
 	@Autowired
 	private ExcelService xlsService;
+	
+	@Autowired
+	private ExcelToDatabaseTransService etdService;
 	
 	/**
 	 * excel文件上传
@@ -59,6 +65,13 @@ public class ExcelController {
 	@ResponseBody
 	public Map<String, Object> getSheetNames(@RequestBody ExcelAnalysisDto dto){
 		return this.xlsService.getSheetNames(dto.getFilePath());
+	}
+	
+	@RequestMapping(path="/excelbulktoes", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+	@ResponseBody
+	public void excelBulktoES(@RequestBody ExcelToDBDto dto) throws Exception{
+		List<String> sheetNames = (List<String>) this.xlsService.getSheetNames(dto.getFilePath()).get("data");
+		this.etdService.excelBulktoES(dto, sheetNames);
 	}
 
 }

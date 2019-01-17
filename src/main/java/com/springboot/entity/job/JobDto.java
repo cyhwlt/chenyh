@@ -39,31 +39,3 @@ public class JobDto {
 	}
 	
 }
-
-//,
-//"parallelDto":{
-//	"startDto":{
-//		"startName":"START",
-//		"start":true,
-//		"repeat":false,
-//		"schedulerType":1,
-//		"intervalSeconds":10,
-//		"intervalMinutes":0,
-//		"hour":12,
-//		"minutes":0,
-//		"weekDay":1,
-//		"dayofMonth":1,
-//		"drawn":true,
-//		"parallel":true
-//	},
-//	"transTosuccess":{
-//			"{\"successName\":\"success1\",\"drawn\":true}":[
-//				{
-//					"transName":"TRANS1",
-//					"fileName":"res\\paneller01.ktr",
-//					"description":"",
-//					"drawn":true
-//				}
-//			]
-//		}
-//	}

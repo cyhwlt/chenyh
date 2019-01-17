@@ -2,7 +2,6 @@ package com.springboot.service.excel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,8 +27,6 @@ import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.springboot.util.JsonUtil;
 
 @Service
 public class ExcelService {
@@ -66,7 +63,6 @@ public class ExcelService {
 			msg = "在导入第"+count+"行数据时报错;";
 			logger.error(msg + e.getMessage());
 		}
-//	    model.addAttribute("msg",msg);
 	    return returnValue;
 		
 	}
@@ -75,44 +71,51 @@ public class ExcelService {
 		Map<String, Object> returnValue = new HashMap();
 		File excelFile = new File(path);
 		HSSFWorkbook wb = null;
-		ExcelInputField[] array = null;
+//		ExcelInputField[] array = null;
+//		List<Map<String,String>> list = new ArrayList();
 		try {
 			wb = new HSSFWorkbook(new FileInputStream(excelFile));
 			HSSFSheet sheet = wb.getSheetAt(sheetNumber);
 			sheet.getSheetName();
 			int length = sheet.getRow(0).getPhysicalNumberOfCells();
-			array = new ExcelInputField[length]; //excel文件列数
+//			array = new ExcelInputField[length]; //excel文件列数
 			int count = 0; //数组项
+			Map<String, String> map = new HashMap();
 			for (Row row : sheet) {
 				for (Cell cell : row) {
-					array[count] = new ExcelInputField();
+//					array[count] = new ExcelInputField();
 					switch (cell.getCellType()) {
 					case Cell.CELL_TYPE_STRING:
-						logger.info(cell.getRichStringCellValue().getString()); 
-						array[count].setName(cell.getRichStringCellValue().getString());
+						logger.info(cell.getRichStringCellValue().getString());
+						map.put(cell.getRichStringCellValue().getString(), "string");
+//						array[count].setName(cell.getRichStringCellValue().getString());
 						break;
 					case Cell.CELL_TYPE_NUMERIC:
 						if (DateUtil.isCellDateFormatted(cell)) {
 							logger.info(String.valueOf(cell.getDateCellValue()));
-							array[count].setName(String.valueOf(String.valueOf(cell.getDateCellValue())));
+							map.put(String.valueOf(String.valueOf(cell.getDateCellValue())), "data");
+//							array[count].setName(String.valueOf(String.valueOf(cell.getDateCellValue())));
 						} else {
 							logger.info(cell.getNumericCellValue());
-							array[count].setName(String.valueOf(cell.getNumericCellValue()));
+							map.put(String.valueOf(cell.getNumericCellValue()), "int");
+//							array[count].setName(String.valueOf(cell.getNumericCellValue()));
 						}
 						break;
 					case Cell.CELL_TYPE_BOOLEAN:
 						logger.info(cell.getBooleanCellValue());
-						array[count].setName(String.valueOf(cell.getBooleanCellValue()));
+						map.put(String.valueOf(cell.getBooleanCellValue()), "boolean");
+//						array[count].setName(String.valueOf(cell.getBooleanCellValue()));
 						break;
 					default:
 					}
 					count++;
+//					list.add(map);
 				}
 				break;
 			}
 			returnValue.put("code", 0);
 			returnValue.put("message", "excel解析成功");
-			returnValue.put("data", array);
+			returnValue.put("data", map);
 		} catch (Exception e) {
 			returnValue.put("code", -1);
 			returnValue.put("message", "excel解析失败");
@@ -143,5 +146,5 @@ public class ExcelService {
 		}
 		return returnValue;
 	}
-	
+
 }

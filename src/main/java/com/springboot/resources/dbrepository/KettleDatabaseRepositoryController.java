@@ -18,10 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.springboot.entity.database.DatabaseDto;
 import com.springboot.entity.database.QuerySqlDto;
 import com.springboot.resources.repository.RepositoryController;
-import com.springboot.service.dbrepository.ExcelToDatabaseTransService;
 import com.springboot.service.dbrepository.KettleDatabaseRepositoryService;
 import com.springboot.util.DBUtil;
-import com.springboot.util.JsonUtil;
 
 @Controller
 @RequestMapping("/database")

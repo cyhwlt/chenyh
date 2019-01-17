@@ -10,24 +10,45 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pentaho.di.core.exception.KettleXMLException;
+import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobHopMeta;
 import org.pentaho.di.job.JobMeta;
+import org.pentaho.di.job.entries.job.JobEntryJob;
 import org.pentaho.di.job.entries.special.JobEntrySpecial;
 import org.pentaho.di.job.entries.success.JobEntrySuccess;
 import org.pentaho.di.job.entries.trans.JobEntryTrans;
 import org.pentaho.di.job.entry.JobEntryCopy;
+import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.StepMeta;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.entity.job.JobDto;
 import com.springboot.entity.job.JobScheduleDto;
 import com.springboot.entity.job.JobTransDto;
+import com.springboot.entity.trans.ExtractDataDto;
+import com.springboot.entity.trans.SetVariableDto;
+import com.springboot.entity.trans.TableNamesDto;
+import com.springboot.service.common.BulkloadService;
+import com.springboot.service.common.DatabaseService;
+import com.springboot.service.common.JobsService;
+import com.springboot.service.common.TransService;
 
 @Service
 public class JobService {
 	
 	private static Logger logger = LogManager.getLogger(JobService.class);
+	
+	@Autowired
+	private DatabaseService dbService;
+	@Autowired
+	private TransService transService;
+	@Autowired
+	private JobsService jobsService;
+	@Autowired
+	private BulkloadService blService;
 	
 	public Map<String, Object> runJob(JobScheduleDto dto) throws Exception{
 		Map<String, Object> returnValue = new HashMap();
@@ -213,4 +234,107 @@ public class JobService {
 		}
 		
 	}
+
+	public void dbMigrate() throws Exception {
+		//获取所有表名称转换
+		this.getTableNames(null, null);
+		//设置变量
+		this.setVariable(null, null);
+		//抽取数据
+		this.extractData(null, null);
+		//抽取数据作业
+		this.extractDataJob(null);
+		//库迁移作业
+		this.dbMigrateJob();
+		
+	}
+
+	private void dbMigrateJob() {
+		
+	}
+
+	private JobMeta extractDataJob(JobDto dto) throws Exception {
+			JobMeta jobMeta = generateJob(dto);
+			String xml = jobMeta.getXML();
+			File file = new File(dto.getFileName());
+			FileUtils.writeStringToFile(file, xml, "UTF-8");
+			return jobMeta;
+	}
+
+	private JobMeta generateJob(JobDto dto) {
+		JobMeta jobMeta = new JobMeta();
+		jobMeta.setName(dto.getJobName());
+		
+		return null;
+	}
+
+	private void extractData(ExtractDataDto dto, String transName) throws Exception {
+		TransMeta generateTrans = this.generateExtractDataTrans(dto, transName);
+		String xml = generateTrans.getXML();
+		File file = new File(transName);
+		FileUtils.writeStringToFile(file, xml, "UTF-8");
+	}
+
+	private TransMeta generateExtractDataTrans(ExtractDataDto dto, String transName) {
+		TransMeta transMeta = new TransMeta();
+		transMeta.setName(transName);
+		PluginRegistry registryID = PluginRegistry.getInstance();
+		//1.表输入
+		StepMeta tableInput = this.dbService.tableInput(transMeta, dto.getTiDto(), registryID);
+		transMeta.addStep(tableInput);
+		//2.elasticsearch bulk insert
+		StepMeta esBulkInsert = this.blService.esBulkInsert(dto.getEsDto(), registryID);
+		transMeta.addStep(esBulkInsert);
+		return transMeta;
+	}
+
+	private void setVariable(SetVariableDto dto, String transName) throws Exception {
+		TransMeta generateTrans = this.generateSetVariableTrans(dto, transName);
+		String xml = generateTrans.getXML();
+		File file = new File(transName);
+		FileUtils.writeStringToFile(file, xml, "UTF-8");
+	}
+
+	private TransMeta generateSetVariableTrans(SetVariableDto dto, String transName) {
+		TransMeta transMeta = new TransMeta();
+		transMeta.setName(transName);
+		PluginRegistry registryID = PluginRegistry.getInstance();
+		//1.从结果获取记录
+		this.jobsService.rowsFromResult(dto);
+		//2.设置变量
+		StepMeta setVariable = this.jobsService.setVariable(dto, registryID);
+		transMeta.addStep(setVariable);
+		return transMeta;
+	}
+
+	private void getTableNames(TableNamesDto dto, String transName) throws Exception {
+		TransMeta generateTrans = this.generateTableNamesTrans(dto, transName);
+		String xml = generateTrans.getXML();
+		File file = new File(transName);
+		FileUtils.writeStringToFile(file, xml, "UTF-8");
+	}
+	
+	public TransMeta generateTableNamesTrans(TableNamesDto dto, String transName) throws Exception{
+		TransMeta transMeta = new TransMeta();
+		String[] dbXml = this.dbService.generateDBxml(dto.getTiDto().getDbDto());
+		transMeta.setName(transName);
+		//添加数据库转换
+		DatabaseMeta dbMeta = new DatabaseMeta(dbXml[0]);
+		transMeta.addDatabase(dbMeta);
+		// registry是给每个步骤生成一个标识ID
+		PluginRegistry registryID = PluginRegistry.getInstance();
+		//1.表输入
+		StepMeta tableInput = this.dbService.tableInput(transMeta, dto.getTiDto(), registryID);
+		transMeta.addStep(tableInput);
+		//2.字段选择
+		StepMeta selectValue = this.transService.selectValue(dto, registryID);
+		transMeta.addStep(selectValue);
+		//3.复制记录到结果
+		StepMeta rowsToResult = this.jobsService.rowsToResult(dto, registryID);
+		transMeta.addStep(rowsToResult);
+		return transMeta;
+		
+	}
+
+	
 }

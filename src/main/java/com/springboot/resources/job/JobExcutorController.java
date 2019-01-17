@@ -41,4 +41,19 @@ public class JobExcutorController {
 	public Map<String, Object> jobSchedulefile(@RequestBody JobDto dto){
 		return this.jobService.generateJobFile(dto);
 	}
+	
+	/**
+	 * 1.获取所有表名称（out .ktr）
+	 * 2.设置变量 （in .ktr1）
+	 * 3.抽取数据（in .ktr2）
+	 * 4.抽取数据作业（包含2.3）
+	 * 5.库迁移作业（1,4）
+	 * @throws Exception 
+	 */
+	@RequestMapping(path="/dbmigrate", method=RequestMethod.POST, consumes="application/json", produces="application/json")
+	@ResponseBody
+	public void dbMigrate() throws Exception{
+		this.jobService.dbMigrate();
+	}
+	
 }
